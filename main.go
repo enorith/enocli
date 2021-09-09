@@ -12,38 +12,51 @@ import (
 func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
-			{
-				Name: "init",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "dir",
-						Value:   ".",
-						Usage:   "directory of project",
-						Aliases: []string{"d"},
-					},
-				},
-				Usage: "init module-name [--dir=.]",
-				Action: func(c *cli.Context) error {
-					dir := c.String("dir")
-					realDir, e := filepath.Abs(dir)
-					if e != nil {
-						fmt.Println(e)
-						return e
-					}
-					module := c.Args().First()
-					if len(module) < 1 {
-						fmt.Printf("usage: enocli %s\n", c.Command.Usage)
-						return fmt.Errorf("invalid module name")
-					}
-
-					path := filepath.Join(realDir, module)
-					fmt.Printf("init enorith project at: %s\n", path)
-
-					return handlers.InitCommand(path, module)
-				},
-			},
+			initCommand(),
 		},
+		Usage: "Enorith cli tool",
 	}
 
 	app.Run(os.Args)
+}
+
+func initCommand() *cli.Command {
+	return &cli.Command{
+		Name: "init",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "dir",
+				Value:   ".",
+				Usage:   "directory of project",
+				Aliases: []string{"d"},
+			},
+		},
+		Usage: "init [--dir=.] module-name",
+		Action: func(c *cli.Context) error {
+			dir := c.String("dir")
+			realDir, e := filepath.Abs(dir)
+			if e != nil {
+				fmt.Println(e)
+				return e
+			}
+
+			module := c.Args().First()
+			if len(module) < 1 {
+				fmt.Printf("usage: enocli %s\n", c.Command.Usage)
+				return fmt.Errorf("invalid module name")
+			}
+
+			path := filepath.Join(realDir, module)
+			fmt.Printf("create enorith project at: %s\n", path)
+
+			e = handlers.InitCommand(path, module)
+
+			if e != nil {
+				fmt.Println(e)
+				return e
+			}
+
+			return nil
+		},
+	}
 }
