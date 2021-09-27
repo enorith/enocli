@@ -21,12 +21,18 @@ func InitCommand(dir, module, version string) error {
 	if ok, _ := file.PathExists(dir); ok {
 		return fmt.Errorf("directory [%s] exists", dir)
 	}
-	fmt.Printf("Cloning %s from %s\n", version, EnorithMod)
+	var ref plumbing.ReferenceName
+	if version == "" {
+		ref = plumbing.Master
+	} else {
+		ref = plumbing.NewTagReferenceName(version)
+	}
+	fmt.Printf("Cloning %s from %s\n", ref, EnorithMod)
 
 	_, e := git.PlainClone(dir, false, &git.CloneOptions{
 		URL:           fmt.Sprintf("https://%s", EnorithMod),
 		Progress:      os.Stdout,
-		ReferenceName: plumbing.ReferenceName(version),
+		ReferenceName: ref,
 	})
 	if e != nil {
 		return e
