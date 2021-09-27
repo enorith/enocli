@@ -10,18 +10,23 @@ import (
 	"github.com/enorith/enocli/internal/pkg/helpers"
 	"github.com/enorith/supports/file"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 var EnorithMod = "github.com/enorith/enorith"
 
-func InitCommand(dir, module string) error {
+var EnorithDoc = "https://enorith.github.io"
+
+func InitCommand(dir, module, version string) error {
 	if ok, _ := file.PathExists(dir); ok {
-		return fmt.Errorf("dir [%s] exists", dir)
+		return fmt.Errorf("directory [%s] exists", dir)
 	}
+	fmt.Printf("Cloning %s from %s\n", version, EnorithMod)
 
 	_, e := git.PlainClone(dir, false, &git.CloneOptions{
-		URL:      fmt.Sprintf("https://%s", EnorithMod),
-		Progress: os.Stdout,
+		URL:           fmt.Sprintf("https://%s", EnorithMod),
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.ReferenceName(version),
 	})
 	if e != nil {
 		return e
@@ -39,5 +44,6 @@ func InitCommand(dir, module string) error {
 	helpers.FileReplaceContent(modPath, []byte(EnorithMod), []byte(module))
 	dotGit := filepath.Join(dir, ".git")
 	os.RemoveAll(dotGit)
+	fmt.Printf("initialize project succeed at %s\nenjoy your coding! learning more: %s\n", dir, EnorithDoc)
 	return nil
 }

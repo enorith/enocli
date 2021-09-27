@@ -30,8 +30,14 @@ func initCommand() *cli.Command {
 				Usage:   "directory of project",
 				Aliases: []string{"d"},
 			},
+			&cli.StringFlag{
+				Name:    "version",
+				Value:   "",
+				Usage:   "version of Enorith",
+				Aliases: []string{"v"},
+			},
 		},
-		Usage: "init [--dir=.] module-name",
+		Usage: "init [--dir=. --version=master] module-name",
 		Action: func(c *cli.Context) error {
 			dir := c.String("dir")
 			realDir, e := filepath.Abs(dir)
@@ -47,9 +53,9 @@ func initCommand() *cli.Command {
 			}
 
 			path := filepath.Join(realDir, module)
-			fmt.Printf("create enorith project at: %s\n", path)
+			fmt.Printf("creating Enorith project at: %s\n", path)
 
-			e = handlers.InitCommand(path, module)
+			e = handlers.InitCommand(path, module, c.String("version"))
 
 			if e != nil {
 				fmt.Println(e)
